@@ -14,21 +14,28 @@ class Camera {
     this.weaponScale = (this.width + this.height) / 2000;
   }
 
-  drawSky(direction, sky, ambient) {
-    var width = sky.width * (this.height / sky.height) * 2;
-    var left = (direction / CIRCLE) * -width;
+  drawSky(direction, pitch, sky, ambient) {
+    this.ctx.fillStyle = '#000';
+    this.ctx.globalAlpha = 1;
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
-    this.ctx.save();
-    this.ctx.drawImage(sky.image, left, 0, width, this.height);
-    if (left < width - this.width) {
-      this.ctx.drawImage(sky.image, left + width, 0, width, this.height);
-    }
-    if (ambient > 0) {
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.globalAlpha = ambient * 0.1;
-      this.ctx.fillRect(0, this.height * 0.5, this.width, this.height * 0.5);
-    }
-    this.ctx.restore();
+    // this.ctx.fillStyle = '#fff';
+    // this.ctx.globalAlpha = ambient * 0.1;
+    // this.ctx.fillRect(0, 0, this.width, this.height);
+
+    // var width = sky.width * (this.height / sky.height) * 2;
+    // var left = (direction / CIRCLE) * -width;
+
+    // // Calculer le décalage vertical basé sur le pitch
+    // // La "sensibilité" détermine l'amplitude du mouvement de la skybox en fonction du pitch
+    // var top = (this.height / 2) * (1 + Math.sin(pitch)) - 0.5 * this.height;
+
+    // this.ctx.save();
+    // this.ctx.drawImage(sky.image, left, top, width, sky.height);
+    // if (left < width - this.width) {
+    //     this.ctx.drawImage(sky.image, left + width, top, width, sky.height);
+    // }
+    // this.ctx.restore();
   };
 
   drawWeapon(weapon, paces) {
@@ -40,7 +47,7 @@ class Camera {
   };
 
   render(player, map) {
-    this.drawSky(player.direction, map.skybox, map.light);
+    this.drawSky(player.direction, player.upDirection, map.skybox, map.light);
 
     for (let offset = 15; offset > 0; offset--) {
       if (map.wallGrids[player.zLevel - offset]) {
@@ -171,7 +178,10 @@ class Camera {
   project(heightRatio, angle, distance, layerOffset, resteOffset, pitch) {
     var z = (distance) * Math.cos(angle);
     var blockHeight = (this.height) * (1) / z;
-    var bottom = ((this.height) / 2 * (1 + 1 / z)) + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
+    var bottom = ((this.height) / 2 * (1 + 1 / z)) // + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
+
+    var verticalAdjustment = this.height * Math.tan(pitch);
+    bottom += verticalAdjustment + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
 
     return {
       top: bottom - blockHeight * heightRatio,

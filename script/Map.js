@@ -112,7 +112,7 @@ class Map {
     this.size = size;
     this.wallGrids = new Array(height).fill(0).map(()=> new Uint8Array(size * size));
     this.skybox = new Bitmap('assets/deathvalley_panorama.jpg', 2000, 750);
-    this.light = 0;
+    this.light = 3;
 
     this.blockProperties = [{
       texture: new Bitmap('assets/block_wall.png', 256, 256),
@@ -230,9 +230,6 @@ class Map {
     }
   };
 
-  update(seconds) {
-    if (this.light > 0) this.light = Math.max(this.light - 10 * seconds, 0);
-    else if (Math.random() * 5 < seconds) this.light = 2;
-  };
+  update(seconds) {};
 }
 

@@ -16,10 +16,10 @@ class Gameloop {
     var seconds = (time - this.lastTime) / 1000;
     this.lastTime = time;
     this.callback(seconds);
-    // this.ctx.fillStyle = '#000';
-    // this.ctx.fillText(Math.round(1 / seconds) + ' fps', 10, 26);
     this.ctx.fillStyle = '#fff';
-    this.ctx.strokeText(Math.round(1 / seconds) + ' fps', 10, 26);
+    this.ctx.fillText(Math.round(1 / seconds) + ' fps', 10, 26);
+    // this.ctx.fillStyle = '#fff';
+    // this.ctx.strokeText(Math.round(1 / seconds) + ' fps', 10, 26);
     requestAnimationFrame(this.frame);
   };
 }

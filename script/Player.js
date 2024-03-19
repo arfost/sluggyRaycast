@@ -28,16 +28,17 @@ class Player {
   walk(distance, map) {
     var dx = Math.cos(this.direction) * distance;
     var dy = Math.sin(this.direction) * distance;
-    if (map.get(this.x + dx, this.y, this.zLevel) <= 0) this.x += dx;
-    if (map.get(this.x, this.y + dy, this.zLevel) <= 0) this.y += dy;
+    this.x += dx;
+    this.y += dy;
     this.paces += distance;
+    console.log(this.x, this.y, this.z, this.zLevel, this.zRest, this.zLevel);
   };
 
   strafe(distance, map) {
     var dx = Math.cos(this.direction + Math.PI/2) * distance;
     var dy = Math.sin(this.direction + Math.PI/2) * distance;
-    if (map.get(this.x + dx, this.y, this.zLevel) <= 0) this.x += dx;
-    if (map.get(this.x, this.y + dy, this.zLevel) <= 0) this.y += dy;
+    this.x += dx;
+    this.y += dy;
     this.paces += distance;
   };
 
@@ -54,11 +55,11 @@ class Player {
     if (controls.right) this.strafe(3 * seconds, map);
 
     if (controls.look) {
-      this.rotateZ(controls.look * Math.PI * seconds * 0.05);
+      this.rotateZ(controls.look * Math.PI * seconds * 0.005);
       controls.look = 0;
     };
     if (controls.turn) {
-      this.rotate(controls.turn * Math.PI * seconds * 0.05);
+      this.rotate(controls.turn * Math.PI * seconds * 0.005);
       controls.turn = 0;
     };
 

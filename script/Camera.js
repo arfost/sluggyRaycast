@@ -1,6 +1,6 @@
 const randomTint = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000'];
 
-const FORCE_WIREFRAME = true;
+const FORCE_WIREFRAME = false;
 class Camera {
   constructor(canvas, resolution, focalLength) {
     this.ctx = canvas.getContext('2d');
@@ -73,90 +73,87 @@ class Camera {
   };
 
   drawTexturedColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width) {
-    var ctx = this.ctx;
 
-    var textureX = Math.floor(map.blockProperties[step.type - 1].texture.width * step.offset);
-    var wall = this.project(map.blockProperties[step.type - 1].heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
+    var textureX = Math.floor(map.getBlockProperties(step.type).texture.width * step.offset);
+    var wall = this.project(map.getBlockProperties(step.type).heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
 
     if (ray[s + 1]) {
-      var nwall = this.project(map.blockProperties[step.type - 1].heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
+      var nwall = this.project(map.getBlockProperties(step.type).heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
 
       if (nwall.top + nwall.height > wall.top + wall.height) {
 
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = map.blockProperties[step.type - 1].tint;
-        ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height));
-        ctx.fillStyle = "#000";
-        ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
-        ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height));
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillStyle = map.getBlockProperties(step.type).tint;
+        this.ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height));
+        this.ctx.fillStyle = "#000";
+        this.ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
+        this.ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height));
       }
       if (nwall.top < wall.top) {
 
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = map.blockProperties[step.type - 1].tint;
-        ctx.fillRect(left, nwall.top, width, wall.top - nwall.top);
-        ctx.fillStyle = "#000";
-        ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
-        ctx.fillRect(left, nwall.top, width, wall.top - nwall.top);
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillStyle = map.getBlockProperties(step.type).tint;
+        this.ctx.fillRect(left, nwall.top, width, wall.top - nwall.top);
+        this.ctx.fillStyle = "#000";
+        this.ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
+        this.ctx.fillRect(left, nwall.top, width, wall.top - nwall.top);
       }
 
     }
 
     //
     if (s <= hit) {
-      ctx.globalAlpha = 1;
-      ctx.drawImage(map.blockProperties[step.type - 1].texture.image, textureX, 0, 1, map.blockProperties[step.type - 1].texture.height, left, wall.top, width, wall.height);
-      ctx.globalAlpha = 0.3;
-      ctx.fillStyle = map.blockProperties[step.type - 1].tint;
-      ctx.fillRect(left, wall.top, width, wall.height);
-      ctx.fillStyle = "#000";
-      ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
-      ctx.fillRect(left, wall.top, width, wall.height);
+      this.ctx.globalAlpha = 1;
+      this.ctx.drawImage(map.getBlockProperties(step.type).texture.image, textureX, 0, 1, map.getBlockProperties(step.type).texture.height, left, wall.top, width, wall.height);
+      this.ctx.globalAlpha = 0.3;
+      this.ctx.fillStyle = map.getBlockProperties(step.type).tint;
+      this.ctx.fillRect(left, wall.top, width, wall.height);
+      this.ctx.fillStyle = "#000";
+      this.ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
+      this.ctx.fillRect(left, wall.top, width, wall.height);
     }
   };
   drawWireframeColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width) {
-    var ctx = this.ctx;
-    ctx.globalAlpha = 0.6;
-    var wall = this.project(map.blockProperties[step.type - 1].heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
+    this.ctx.globalAlpha = 0.6;
+    var wall = this.project(map.getBlockProperties(step.type).heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
 
 
     if (ray[s + 1]) {
       //var ntextureX = Math.floor(map.blockProperties[step.type - 1].topTexture.width * nextStep.offset);
-      var nwall = this.project(map.blockProperties[step.type - 1].heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
+      var nwall = this.project(map.getBlockProperties(step.type).heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
 
       // ctx.fillStyle = "#ff0000";
       // ctx.fillRect(left, nwall.top, width, nwall.height); //back face
 
       if (nwall.top + nwall.height > wall.top + wall.height) {
-        ctx.fillStyle = "#0000ff";
-        ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height)); //bottom face
+        this.ctx.fillStyle = "#0000ff";
+        this.ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height)); //bottom face
       }
       if (nwall.top < wall.top) {
-        ctx.fillStyle = "#00ff00";
-        ctx.fillRect(left, nwall.top, width, wall.top - nwall.top); //top face
+        this.ctx.fillStyle = "#00ff00";
+        this.ctx.fillRect(left, nwall.top, width, wall.top - nwall.top); //top face
       }
 
     }
 
     //
     if (s <= hit) {
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(left, wall.top, width, wall.height);
+      this.ctx.fillStyle = "#fff";
+      this.ctx.fillRect(left, wall.top, width, wall.height);
 
-      ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
-      ctx.fillRect(left, wall.top, width, wall.height);
+      this.ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
+      this.ctx.fillRect(left, wall.top, width, wall.height);
     }
   };
 
   drawColumn(column, ray, angle, map, layerOffset, resteOffset, upDirection) {
-    var ctx = this.ctx;
 
     var left = Math.floor(column * this.spacing);
     var width = Math.ceil(this.spacing);
     var hit = -1;
 
     const isStop = (step) => {
-      return (map.blockProperties[step.type - 1] || {}).stop;
+      return (map.getBlockProperties(step.type) || {}).stop;
     }
 
     while (++hit < ray.length && !isStop(ray[hit]));
@@ -166,9 +163,10 @@ class Camera {
       var step = ray[s];
 
       if (step.type > 0) {
-        if (map.blockProperties[step.type - 1].texture && !FORCE_WIREFRAME) {
+        if (map.getBlockProperties(step.type).texture && !FORCE_WIREFRAME) {
           this.drawTexturedColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width);
         } else {
+          
           this.drawWireframeColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width);
         }
       }

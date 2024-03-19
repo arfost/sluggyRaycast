@@ -74,16 +74,18 @@ class Camera {
 
   drawTexturedColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width) {
 
-    var textureX = Math.floor(map.getBlockProperties(step.type).texture.width * step.offset);
-    var wall = this.project(map.getBlockProperties(step.type).heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
+    const blockProps = map.getBlockProperties(step.type);
+
+    var textureX = Math.floor(blockProps.texture.width * step.offset);
+    var wall = this.project(blockProps.heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
 
     if (ray[s + 1]) {
-      var nwall = this.project(map.getBlockProperties(step.type).heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
+      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
 
       if (nwall.top + nwall.height > wall.top + wall.height) {
 
         this.ctx.globalAlpha = 1;
-        this.ctx.fillStyle = map.getBlockProperties(step.type).tint;
+        this.ctx.fillStyle = blockProps.tint;
         this.ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height));
         this.ctx.fillStyle = "#000";
         this.ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
@@ -92,7 +94,7 @@ class Camera {
       if (nwall.top < wall.top) {
 
         this.ctx.globalAlpha = 1;
-        this.ctx.fillStyle = map.getBlockProperties(step.type).tint;
+        this.ctx.fillStyle = blockProps.tint;
         this.ctx.fillRect(left, nwall.top, width, wall.top - nwall.top);
         this.ctx.fillStyle = "#000";
         this.ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
@@ -114,13 +116,16 @@ class Camera {
     }
   };
   drawWireframeColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width) {
+
+    const blockProps = map.getBlockProperties(step.type)
+
     this.ctx.globalAlpha = 0.6;
-    var wall = this.project(map.getBlockProperties(step.type).heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
+    var wall = this.project(blockProps.heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
 
 
     if (ray[s + 1]) {
       //var ntextureX = Math.floor(map.blockProperties[step.type - 1].topTexture.width * nextStep.offset);
-      var nwall = this.project(map.getBlockProperties(step.type).heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
+      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
 
       // ctx.fillStyle = "#ff0000";
       // ctx.fillRect(left, nwall.top, width, nwall.height); //back face

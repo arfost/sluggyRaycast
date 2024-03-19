@@ -1,3 +1,4 @@
+
 const DEFAULT_MAP = [
   [
     1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -69,9 +70,15 @@ const DEFAULT_MAP = [
   ]
 ]
 
-const OFFSET_Z = 150;
+const OFFSET_Z = 0;
 
 class DfMapLoader {
+
+  static CHUNK_SIZE = 2;
+
+  static BLOCK_SIZE = 16;
+  static BLOCK_SIZE_Z = 1;
+
   constructor() {
     try {
       this.client = new DwarfClient();
@@ -79,94 +86,71 @@ class DfMapLoader {
       this.client = false;
       console.warn("Dwarf client could not be loaded. Will use default map instead.");
     }
+    this.map = [],
+    this.mapInfos = {}
   }
 
   ready() {
-    console.log("me too", this.client, this.client._initialized);
     return this.client ? this.client._initialized : false
   }
 
-  async loadMap() {
-    console.log("i'm running")
+  async initMap() {
     if (await this.ready()) {
-      const retour = {
-        map: [],
-        mapInfos: {}
-      }
+      
       const dfMapInfos = await this.client.GetMapInfo();
       console.log(dfMapInfos);
-      // retour.mapInfos.size = {
-      //   x: dfMapInfos.blockSizeX * 16,
-      //   y: dfMapInfos.blockSizeY * 16,
-      //   z: dfMapInfos.blockSizeZ
-      // };
-
-      retour.mapInfos.size = {
-        x: 3 * 16,
-        y: 3 * 16,
-        z: 10
+      this.mapInfos.size = {
+        x: dfMapInfos.blockSizeX * DfMapLoader.BLOCK_SIZE,
+        y: dfMapInfos.blockSizeY * DfMapLoader.BLOCK_SIZE,
+        z: dfMapInfos.blockSizeZ * DfMapLoader.BLOCK_SIZE_Z
       };
 
-      retour.map = new Array(retour.mapInfos.size.z).fill(0).map(() => new Uint8Array(retour.mapInfos.size.x * retour.mapInfos.size.y));
-
-
-      retour.map[0][0] = 1;
-      console.log("map", JSON.stringify(retour.map, null, 4), retour.mapInfos.size);
+      this.map = new Array(this.mapInfos.size.z).fill(0).map(() => new Uint8Array(this.mapInfos.size.x * this.mapInfos.size.y));
 
       const tileTypeList = await this.client.GetTiletypeList();
+
+      this.tileTypeList = tileTypeList.tiletypeList;
       console.log(tileTypeList);
 
-      let blocks = await this.loadChunk(7, 7, 1 + OFFSET_Z, 2);
-      console.log(blocks);
-      this.processDfBlocks(blocks.mapBlocks || [], retour.map, retour.mapInfos, tileTypeList.tiletypeList);
-
-      console.log(retour);
-      return retour;
-
     } else {
-      console.log("but i am.")
-      return { map: DEFAULT_MAP, mapInfos: { size: { x: 32, y: 32, z: 2 } } };
+      this.map = DEFAULT_MAP;
+      this.mapInfos.size = { x: 32, y: 32, z: 2 };
     }
   }
 
-  async loadChunk(x, y, z, size, forceReload = true) {
-    const params = { minX: x, minY: y, minZ: z, maxX: x + size, maxY: y + size, maxZ: z + size, forceReload };
-    console.log(params);
-    return await this.client.GetBlockList(params);
+  async loadChunk(x, y, z, size, forceReload = true) { 
+    if (await this.ready()) {
+      const params = { minX: x, minY: y, minZ: z, maxX: x + size + 1, maxY: y + size + 1, maxZ: z + size + 1, forceReload };
+      console.log("loading chunk : ", params);
+      try{
+        let res = await this.client.GetBlockList(params);
+        this.processDfBlocks(res.mapBlocks || []);
+      }catch(e){
+        console.log(e);
+      }
+    }
   }
 
-  processDfBlocks(blocks, map, mapInfos, tileTypeList) {
-    const addedPos = [];
+  processDfBlocks(blocks) {
     for (let block of blocks) {
       let basePosition = {
-        x: block.mapX - 7*16,
-        y: block.mapY - 7*16,
+        x: block.mapX,
+        y: block.mapY,
         z: block.mapZ - OFFSET_Z
       }
       for (let x = 0; x < 16; x++) {
         for (let y = 0; y < 16; y++) {
           let index = y * 16 + x;
-          let tileType = tileTypeList.find(t => t.id === block.tiles[index]);
+          let tileType = this.tileTypeList.find(t => t.id === block.tiles[index]);
           if (!tileType) {
             console.log("Tile type not found for", block.tiles[index]);
             continue;
           }
-          map[basePosition.z][((basePosition.y + y) * mapInfos.size.x) + basePosition.x + x] = parseInt(tileType.shape);
-          addedPos.push({
-            x,
-            y,
-            z: basePosition.z,
-            basePosition,
-            totalx: basePosition.x + x,
-            totaly: basePosition.y + y,
-            totalz: basePosition.z,
-            index: ((basePosition.y + y) * mapInfos.size.x) + basePosition.x + x
-          });
-
+          this.map[basePosition.z][((basePosition.y + y) * this.mapInfos.size.x) + basePosition.x + x] = parseInt(tileType.shape);
         }
       }
-      console.log("added", addedPos);
     }
+    console.log("Block groub loaded", blocks);
   }
 }
 

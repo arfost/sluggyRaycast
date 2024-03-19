@@ -1,8 +1,8 @@
 class Player {
-  constructor(x, y, direction) {
+  constructor(x, y, z, direction) {
     this.x = x;
     this.y = y;
-    this.z = 0;
+    this.z = z;
     this.direction = direction;
     this.upDirection = 0;
     this.weapon = new Bitmap('assets/rabbit_hand.png', 319, 320);
@@ -31,7 +31,7 @@ class Player {
     this.x += dx;
     this.y += dy;
     this.paces += distance;
-    console.log(this.x, this.y, this.z, this.zLevel, this.zRest, this.zLevel);
+    
   };
 
   strafe(distance, map) {
@@ -71,6 +71,9 @@ class Player {
     } 
 
     if (controls.forward) { this.walk(3 * seconds, map) } 
-    if (controls.backward) { this.walk(-3 * seconds, map) }
+    if (controls.backward) { 
+      this.walk(-3 * seconds, map);
+      console.log("position : ", this.x, this.y, this.z, "zLevel : ", this.zLevel, "zRest : ", this.zRest);
+    }
   };
 }

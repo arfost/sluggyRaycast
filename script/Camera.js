@@ -1,6 +1,6 @@
 const randomTint = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000'];
 
-const FORCE_WIREFRAME = false;
+const FORCE_WIREFRAME = true;
 class Camera {
   constructor(canvas, resolution, focalLength) {
     this.ctx = canvas.getContext('2d');
@@ -124,11 +124,11 @@ class Camera {
       //var ntextureX = Math.floor(map.blockProperties[step.type - 1].topTexture.width * nextStep.offset);
       var nwall = this.project(map.blockProperties[step.type - 1].heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
 
-      ctx.fillStyle = "#ff0000";
-      ctx.fillRect(left, nwall.top, width, nwall.height); //back face
+      // ctx.fillStyle = "#ff0000";
+      // ctx.fillRect(left, nwall.top, width, nwall.height); //back face
 
       if (nwall.top + nwall.height > wall.top + wall.height) {
-        ctx.fillStyle = "#ff0000";
+        ctx.fillStyle = "#0000ff";
         ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height)); //bottom face
       }
       if (nwall.top < wall.top) {

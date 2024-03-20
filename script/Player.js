@@ -92,6 +92,6 @@ class Player {
       this.walk(-3 * seconds, map);
       console.log("position : ", this.x, this.y, this.z, "zLevel : ", this.zLevel, "zRest : ", this.zRest);
     }
-    this.physique(seconds, map);
+    //this.physique(seconds, map);
   };
 }

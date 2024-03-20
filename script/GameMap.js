@@ -5,7 +5,7 @@ class GameMap {
     this.light = 3;
 
     const chunkCoord = this.playerCoordToMapCoord(startCoord);
-    this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);
+    this.ready = this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);
 
     const chunkLength = DfMapLoader.BLOCK_SIZE * (DfMapLoader.CHUNK_SIZE);
     const chunkLengthZ = 10*DfMapLoader.BLOCK_SIZE_Z * (DfMapLoader.CHUNK_SIZE);
@@ -22,34 +22,7 @@ class GameMap {
     }
     console.log("chunks init", this.nextChunks);
 
-    this.blockProperties = [{
-      heightRatio: 1,
-      stop: false,
-      passable: true,
-      walkable: true,
-    },{
-      texture: new Bitmap('assets/smooth_wall.png', 256, 256),
-      heightRatio: 0.02,
-      tint: '#ff6600',
-      stop: false,
-      passable: true,
-      walkable: true,
-    },{
-      texture: new Bitmap('assets/boulder_wall.png', 256, 256),
-      heightRatio: 1,
-      tint: '#ff6600',
-      stop: true,
-    },{
-      texture: new Bitmap('assets/stone_wall.png', 256, 256),
-      heightRatio: 1,
-      tint: '#ff6600',
-      stop: true,
-    },{
-      texture: new Bitmap('assets/block_wall.png', 256, 256),
-      heightRatio: 1,
-      tint: '#ff6600',
-      stop: true,
-    }]
+    this.blockProperties = mapLoader.blockProperties.blockDefinition;
   }
 
   get wallGrids(){

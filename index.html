@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Raycaster Demo - PlayfulJS</title>
     <script src="script/lib/dfHackSocket.js"></script>
+    <script src="script/BlockDefinition.js"></script>
     <script src="script/MapLoader.js"></script>
     <script src="script/Bitmap.js"></script>
     <script src="script/Player.js"></script>
@@ -22,8 +23,8 @@
       
       async function initGame(){
 
-        // const mapLoader = new DfMapLoader();
-        const mapLoader = new DefaultMapLoader(10);
+        const mapLoader = new DfMapLoader();
+        // const mapLoader = new DefaultMapLoader(10);
         const startPos = await mapLoader.initMap();
         console.log("map initialised ");
         var display = document.getElementById('display');
@@ -39,6 +40,8 @@
         var controls = new Controls();
         var camera = new Camera(display, 240, 0.8);
         var loop = new Gameloop(display);
+
+        await map.ready;
         
         loop.start((seconds) => {
           map.update(seconds, player);

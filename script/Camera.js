@@ -76,7 +76,6 @@ class Camera {
 
     const blockProps = map.getBlockProperties(step.type);
 
-    var textureX = Math.floor(blockProps.texture.width * step.offset);
     var wall = this.project(blockProps.heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
 
     if (ray[s + 1]) {
@@ -105,6 +104,7 @@ class Camera {
 
     //
     if (s <= hit) {
+      var textureX = Math.floor(blockProps.texture.width * step.offset);
       this.ctx.globalAlpha = 1;
       this.ctx.drawImage(map.getBlockProperties(step.type).texture.image, textureX, 0, 1, map.getBlockProperties(step.type).texture.height, left, wall.top, width, wall.height);
       this.ctx.globalAlpha = 0.3;

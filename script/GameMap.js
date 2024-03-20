@@ -7,16 +7,16 @@ class GameMap {
     const chunkCoord = this.playerCoordToMapCoord(startCoord);
     this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);
 
-    const chunkLength = DfMapLoader.BLOCK_SIZE * (DfMapLoader.CHUNK_SIZE * 2 +1);
-    const chunkLengthZ = 10*DfMapLoader.BLOCK_SIZE_Z * (DfMapLoader.CHUNK_SIZE * 2 +1);
+    const chunkLength = DfMapLoader.BLOCK_SIZE * (DfMapLoader.CHUNK_SIZE);
+    const chunkLengthZ = 10*DfMapLoader.BLOCK_SIZE_Z * (DfMapLoader.CHUNK_SIZE);
 
     this.nextChunks = {
-      xMin: startCoord.x - chunkLength/4,
-      xMax: startCoord.x + chunkLength/4,
-      yMin: startCoord.y - chunkLength/4,
-      yMax: startCoord.y + chunkLength/4,
-      zMin: startCoord.z - chunkLengthZ/4,
-      zMax: startCoord.z + chunkLengthZ/4,
+      xMin: startCoord.x - chunkLength/2,
+      xMax: startCoord.x + chunkLength/2,
+      yMin: startCoord.y - chunkLength/2,
+      yMax: startCoord.y + chunkLength/2,
+      zMin: startCoord.z - chunkLengthZ/2,
+      zMax: startCoord.z + chunkLengthZ/2,
       chunkLength,
       chunkLengthZ
     }
@@ -124,27 +124,27 @@ class GameMap {
     switch (direction) {
       case "up":
         chunkCoord.z += DfMapLoader.CHUNK_SIZE*2;
-        this.nextChunks.zMax += this.nextChunks.chunkLengthZ/2;
+        this.nextChunks.zMax += this.nextChunks.chunkLengthZ;
         break;
       case "down":
         chunkCoord.z -= DfMapLoader.CHUNK_SIZE*2;
-        this.nextChunks.zMin -= this.nextChunks.chunkLengthZ/2;
+        this.nextChunks.zMin -= this.nextChunks.chunkLengthZ;
         break;
       case "forward":
         chunkCoord.x += DfMapLoader.CHUNK_SIZE*2;
-        this.nextChunks.xMax += this.nextChunks.chunkLength/2;
+        this.nextChunks.xMax += this.nextChunks.chunkLength;
         break;
       case "backward":
         chunkCoord.x -= DfMapLoader.CHUNK_SIZE*2;
-        this.nextChunks.xMin -= this.nextChunks.chunkLength/2;
+        this.nextChunks.xMin -= this.nextChunks.chunkLength;
         break;
       case "left":
         chunkCoord.y += DfMapLoader.CHUNK_SIZE*2;
-        this.nextChunks.yMax += this.nextChunks.chunkLength/2;
+        this.nextChunks.yMax += this.nextChunks.chunkLength;
         break;
       case "right":
         chunkCoord.y -= DfMapLoader.CHUNK_SIZE*2;
-        this.nextChunks.yMin -= this.nextChunks.chunkLength/2;
+        this.nextChunks.yMin -= this.nextChunks.chunkLength;
         break;
     }
     console.log("getNextChunks after", direction, JSON.stringify(this.nextChunks, null, 4), JSON.stringify(chunkCoord, null, 4));

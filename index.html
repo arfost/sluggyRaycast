@@ -22,7 +22,8 @@
       
       async function initGame(){
 
-        const mapLoader = new DfMapLoader();
+        // const mapLoader = new DfMapLoader();
+        const mapLoader = new DefaultMapLoader(10);
         const startPos = await mapLoader.initMap();
         console.log("map initialised ");
         var display = document.getElementById('display');
@@ -43,6 +44,8 @@
           map.update(seconds, player);
           player.update(controls.states, map, seconds);
           camera.render(player, map);
+          loop.ctx.fillStyle = '#fff';
+          loop.ctx.fillText(`position : x:${player.x} y:${player.y} z:${player.z}`, 70, 26);
         });
       }
 

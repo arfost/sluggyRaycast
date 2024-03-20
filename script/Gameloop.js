@@ -4,7 +4,7 @@ class Gameloop {
     this.lastTime = 0;
     this.ctx = display.getContext('2d');
     this.callback = function () { };
-    this.ctx.font = "14px serif";
+    this.ctx.font = "12px serif";
   }
 
   start(callback) {

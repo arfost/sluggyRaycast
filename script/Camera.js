@@ -72,7 +72,7 @@ class Camera {
     var hit = -1;
 
     const isStop = (step) => {
-      return (map.getBlockProperties(step.type) || {}).stop;
+      return step.type != 0;
     }
 
     while (++hit < ray.length && !isStop(ray[hit]));
@@ -97,10 +97,10 @@ class Camera {
     const blockProps = map.getBlockProperties(step.type);
 
     var textureX = Math.floor(blockProps.texture.width * step.offset);
-    var wall = this.project(blockProps.heightRatio, angle, step.distance, step.z, upDirection, resteOffset);
+    var wall = this.project(blockProps.heightRatio, angle, step.distance, step.realZ, upDirection, resteOffset);
 
     if (ray[s + 1]) {
-      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, step.z, upDirection, resteOffset);
+      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, step.realZ, upDirection, resteOffset);
 
       if (nwall.top + nwall.height > wall.top + wall.height) {
 
@@ -140,12 +140,12 @@ class Camera {
     const blockProps = map.getBlockProperties(step.type)
 
     this.ctx.globalAlpha = 0.6;
-    var wall = this.project(blockProps.heightRatio, angle, step.distance, step.z, upDirection, resteOffset);
+    var wall = this.project(blockProps.heightRatio, angle, step.distance, step.realZ, upDirection, resteOffset);
 
 
     if (ray[s + 1]) {
       //var ntextureX = Math.floor(map.blockProperties[step.type - 1].topTexture.width * nextStep.offset);
-      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, step.z, upDirection, resteOffset);
+      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, step.realZ, upDirection, resteOffset);
 
       // ctx.fillStyle = "#ff0000";
       // ctx.fillRect(left, nwall.top, width, nwall.height); //back face

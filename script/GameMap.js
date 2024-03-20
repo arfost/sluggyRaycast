@@ -73,7 +73,7 @@ class GameMap {
     var cos = Math.cos(angle);
     var noWall = { length2: Infinity };
     const rays = [];
-    for(let zAngle = 2; zAngle > 0; zAngle -= 0.1){
+    for(let zAngle = 3; zAngle > 0; zAngle -= 0.2){
       rays.push(ray({ x: point.x, y: point.y, z: point.zLevel, type: 0, distance: 0, zAngle}));
       rays.push(ray({ x: point.x, y: point.y, z: point.zLevel, type: 0, distance: 0, zAngle: -zAngle}));
     }
@@ -108,12 +108,12 @@ class GameMap {
     function inspect(step, shiftX, shiftY, distance, offset) {
       var dx = cos < 0 ? shiftX : 0;
       var dy = sin < 0 ? shiftY : 0;
-      step.type = self.get(step.x - dx, step.y - dy, Math.floor(step.z));
+      step.type = self.get(step.x - dx, step.y - dy, Math.floor(step.z + step.zAngle*distance));
       step.distance = distance + Math.sqrt(step.length2);
       if (shiftX) step.shading = cos < 0 ? 2 : 0;
       else step.shading = sin < 0 ? 2 : 1;
       step.offset = offset - Math.floor(offset);
-      step.z += step.zAngle;
+      step.realZ = Math.floor(step.z + step.zAngle*distance);
       return step;
     }
   };

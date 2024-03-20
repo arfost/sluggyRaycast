@@ -48,39 +48,59 @@ class Camera {
 
   render(player, map) {
     this.drawSky(player.direction, player.upDirection, map.skybox, map.light);
-
-    for (let offset = 15; offset > 0; offset--) {
-      if (map.wallGrids[player.zLevel - offset]) {
-        this.drawColumns(player, map, player.zLevel - offset, -offset, player.zRest);
-      }
-      if (map.wallGrids[player.zLevel + offset]) {
-        this.drawColumns(player, map, player.zLevel + offset, offset, player.zRest);
-      }
-    }
-    this.drawColumns(player, map, player.zLevel, 0, player.zRest);
+    this.drawColumns(player, map);
     this.drawWeapon(player.weapon, player.paces);
   };
 
-  drawColumns(player, map, layer, layerOffset, resteOffset) {
+  drawColumns(player, map) {
     this.ctx.save();
     for (var column = 0; column < this.resolution; column++) {
       var x = column / this.resolution - 0.5;
       var angle = Math.atan2(x, this.focalLength);
-      var ray = map.cast(player, player.direction + angle, this.range, layer);
-      this.drawColumn(column, ray, angle, map, layerOffset, resteOffset, player.upDirection);
+      var rays = map.cast(player, player.direction + angle, this.range);
+      for(let ray of rays){
+        this.drawColumn(column, ray, angle, map, player.upDirection, player.zRest);
+      }
     }
     this.ctx.restore();
   };
 
-  drawTexturedColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width) {
+  drawColumn(column, ray, angle, map, upDirection, resteOffset) {
+
+    var left = Math.floor(column * this.spacing);
+    var width = Math.ceil(this.spacing);
+    var hit = -1;
+
+    const isStop = (step) => {
+      return (map.getBlockProperties(step.type) || {}).stop;
+    }
+
+    while (++hit < ray.length && !isStop(ray[hit]));
+
+    // for (var s = ray.length - 1; s >= 0; s--) {
+    for (var s = ray.length - 1; s >= 0; s--) {
+      var step = ray[s];
+
+      if (step.type > 0) {
+        if (map.getBlockProperties(step.type).texture && !FORCE_WIREFRAME) {
+          this.drawTexturedColumn(s, step, ray, hit, angle, map, upDirection, left, width, resteOffset);
+        } else {
+          
+          this.drawWireframeColumn(s, step, ray, hit, angle, map, upDirection, left, width, resteOffset);
+        }
+      }
+    }
+  };
+
+  drawTexturedColumn(s, step, ray, hit, angle, map, upDirection, left, width, resteOffset) {
 
     const blockProps = map.getBlockProperties(step.type);
 
     var textureX = Math.floor(blockProps.texture.width * step.offset);
-    var wall = this.project(blockProps.heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
+    var wall = this.project(blockProps.heightRatio, angle, step.distance, step.z, upDirection, resteOffset);
 
     if (ray[s + 1]) {
-      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
+      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, step.z, upDirection, resteOffset);
 
       if (nwall.top + nwall.height > wall.top + wall.height) {
 
@@ -115,17 +135,17 @@ class Camera {
       this.ctx.fillRect(left, wall.top, width, wall.height);
     }
   };
-  drawWireframeColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width) {
+  drawWireframeColumn(s, step, ray, hit, angle, map, upDirection, left, width, resteOffset) {
 
     const blockProps = map.getBlockProperties(step.type)
 
     this.ctx.globalAlpha = 0.6;
-    var wall = this.project(blockProps.heightRatio, angle, step.distance, layerOffset, resteOffset, upDirection);
+    var wall = this.project(blockProps.heightRatio, angle, step.distance, step.z, upDirection, resteOffset);
 
 
     if (ray[s + 1]) {
       //var ntextureX = Math.floor(map.blockProperties[step.type - 1].topTexture.width * nextStep.offset);
-      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, layerOffset, resteOffset, upDirection);
+      var nwall = this.project(blockProps.heightRatio, angle, ray[s + 1].distance, step.z, upDirection, resteOffset);
 
       // ctx.fillStyle = "#ff0000";
       // ctx.fillRect(left, nwall.top, width, nwall.height); //back face
@@ -151,40 +171,13 @@ class Camera {
     }
   };
 
-  drawColumn(column, ray, angle, map, layerOffset, resteOffset, upDirection) {
-
-    var left = Math.floor(column * this.spacing);
-    var width = Math.ceil(this.spacing);
-    var hit = -1;
-
-    const isStop = (step) => {
-      return (map.getBlockProperties(step.type) || {}).stop;
-    }
-
-    while (++hit < ray.length && !isStop(ray[hit]));
-
-    // for (var s = ray.length - 1; s >= 0; s--) {
-    for (var s = ray.length - 1; s >= 0; s--) {
-      var step = ray[s];
-
-      if (step.type > 0) {
-        if (map.getBlockProperties(step.type).texture && !FORCE_WIREFRAME) {
-          this.drawTexturedColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width);
-        } else {
-          
-          this.drawWireframeColumn(s, step, ray, hit, angle, map, layerOffset, resteOffset, upDirection, left, width);
-        }
-      }
-    }
-  };
-
-  project(heightRatio, angle, distance, layerOffset, resteOffset, pitch) {
+  project(heightRatio, angle, distance, zAngle, resteOffset, pitch) {
     var z = (distance) * Math.cos(angle);
     var blockHeight = (this.height) * (1) / z;
     var bottom = ((this.height) / 2 * (1 + 1 / z)) // + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
 
-    var verticalAdjustment = this.height * Math.tan(pitch);
-    bottom += verticalAdjustment + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
+    var verticalAdjustment = 0//this.height * Math.tan(pitch);
+    bottom += verticalAdjustment + ((blockHeight * -zAngle) )//+ (blockHeight / 10 * resteOffset));
 
     return {
       top: bottom - blockHeight * heightRatio,

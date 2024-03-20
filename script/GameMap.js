@@ -63,49 +63,57 @@ class GameMap {
   get(x, y, z) {
     x = Math.floor(x);
     y = Math.floor(y);
-    if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return -1;
+    if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1 || z >= this.wallGrids.length || z < 0) return -1;
     return this.wallGrids[z][y * this.size.x + x];
   };
 
-  cast(point, angle, range, layer) {
+  cast(point, angle, range) {
     var self = this;
     var sin = Math.sin(angle);
     var cos = Math.cos(angle);
     var noWall = { length2: Infinity };
+    const rays = [];
+    for(let zAngle = 2; zAngle > 0; zAngle -= 0.1){
+      rays.push(ray({ x: point.x, y: point.y, z: point.zLevel, type: 0, distance: 0, zAngle}));
+      rays.push(ray({ x: point.x, y: point.y, z: point.zLevel, type: 0, distance: 0, zAngle: -zAngle}));
+    }
+    rays.push(ray({ x: point.x, y: point.y, z: point.zLevel, type: 0, distance: 0, zAngle: 0}));
 
-    return ray({ x: point.x, y: point.y, type: 0, distance: 0, layer: layer});
+    return rays;
 
     function ray(origin) {
-      var stepX = step(sin, cos, origin.x, origin.y);
-      var stepY = step(cos, sin, origin.y, origin.x, true);
+      var stepX = step(sin, cos, origin.x, origin.y, origin.z, origin.zAngle, false);
+      var stepY = step(cos, sin, origin.y, origin.x, origin.z, origin.zAngle, true);
       var nextStep = stepX.length2 < stepY.length2
-        ? inspect(stepX, 1, 0, origin.distance, stepX.y, origin.layer)
-        : inspect(stepY, 0, 1, origin.distance, stepY.x, origin.layer);
+        ? inspect(stepX, 1, 0, origin.distance, stepX.y)
+        : inspect(stepY, 0, 1, origin.distance, stepY.x);
 
       if (nextStep.distance > range) return [origin];
       return [origin].concat(ray(nextStep));
     }
 
-    function step(rise, run, x, y, inverted) {
+    function step(rise, run, x, y, z, zAngle, inverted) {
       if (run === 0) return noWall;
       var dx = run > 0 ? Math.floor(x + 1) - x : Math.ceil(x - 1) - x;
       var dy = dx * (rise / run);
       return {
         x: inverted ? y + dy : x + dx,
         y: inverted ? x + dx : y + dy,
+        z,
+        zAngle,
         length2: dx * dx + dy * dy
       };
     }
 
-    function inspect(step, shiftX, shiftY, distance, offset, layer) {
+    function inspect(step, shiftX, shiftY, distance, offset) {
       var dx = cos < 0 ? shiftX : 0;
       var dy = sin < 0 ? shiftY : 0;
-      step.type = self.get(step.x - dx, step.y - dy, layer);
+      step.type = self.get(step.x - dx, step.y - dy, Math.floor(step.z));
       step.distance = distance + Math.sqrt(step.length2);
       if (shiftX) step.shading = cos < 0 ? 2 : 0;
       else step.shading = sin < 0 ? 2 : 1;
       step.offset = offset - Math.floor(offset);
-      step.layer = layer;
+      step.z += step.zAngle;
       return step;
     }
   };

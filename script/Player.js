@@ -1,5 +1,5 @@
 class Player {
-  constructor(x, y, z, direction) {
+  constructor({x, y, z}, direction) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -7,6 +7,7 @@ class Player {
     this.upDirection = 0;
     this.weapon = new Bitmap('assets/rabbit_hand.png', 319, 320);
     this.paces = 0;
+    this.lastValidPosition = { x: this.x, y: this.y, z: this.z };
   }
 
   rotate(angle) {
@@ -49,6 +50,22 @@ class Player {
     }
   };
 
+  physique(seconds, map) {
+    const currentBlock = map.getBlockProperties(map.get(this.x, this.y, this.zLevel));
+    if (!currentBlock.passable) {
+      this.x = this.lastValidPosition.x;
+      this.y = this.lastValidPosition.y;
+      this.z = this.lastValidPosition.z;
+      return;
+    }
+    if(this.zRest > 1 || (!currentBlock.walkable && map.getBlockProperties(map.get(this.x, this.y, this.zLevel-1)).passable)) {
+      this.z -= 15*seconds;
+    }
+    this.lastValidPosition.x = this.x;
+    this.lastValidPosition.y = this.y;
+    this.lastValidPosition.z = this.z;
+  }
+
   update(controls, map, seconds) {
 
     if (controls.left) this.strafe(-3 * seconds, map);
@@ -75,5 +92,6 @@ class Player {
       this.walk(-3 * seconds, map);
       console.log("position : ", this.x, this.y, this.z, "zLevel : ", this.zLevel, "zRest : ", this.zRest);
     }
+    this.physique(seconds, map);
   };
 }

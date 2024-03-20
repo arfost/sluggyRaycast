@@ -23,7 +23,7 @@
       async function initGame(){
 
         const mapLoader = new DfMapLoader();
-        await mapLoader.initMap();
+        const startPos = await mapLoader.initMap();
         console.log("map initialised ");
         var display = document.getElementById('display');
         display.addEventListener("click", async () => {
@@ -33,8 +33,8 @@
             });
           }
         });
-        var player = new Player(128, 128, 1500, Math.PI * 0.3);
-        var map = new GameMap(mapLoader, player);
+        var player = new Player(startPos, Math.PI * 0.3);
+        var map = new GameMap(mapLoader, startPos);
         var controls = new Controls();
         var camera = new Camera(display, 240, 0.8);
         var loop = new Gameloop(display);

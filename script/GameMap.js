@@ -24,13 +24,16 @@ class GameMap {
 
     this.blockProperties = [{
       heightRatio: 1,
-      tint: '#ff6600',
       stop: false,
+      passable: true,
+      walkable: true,
     },{
       texture: new Bitmap('assets/smooth_wall.png', 256, 256),
       heightRatio: 0.02,
       tint: '#ff6600',
       stop: false,
+      passable: true,
+      walkable: true,
     },{
       texture: new Bitmap('assets/boulder_wall.png', 256, 256),
       heightRatio: 1,

@@ -264,6 +264,32 @@ const propsCombinaison = [
   ],
 }]
 
+const placeableCombinaison = [{
+  texture: "sprite_bed",
+  signature:[1],
+},{
+  texture: "sprite_altar",
+  signature:[1],
+},{
+  texture: "sprite_chair",
+  signature:[1],
+},{
+  texture: "sprite_table",
+  signature:[1],
+},{
+  texture: "sprite_coffer",
+  signature:[1],
+},{
+  texture: "sprite_cabinet",
+  signature:[1],
+},{
+  texture: "sprite_statue",
+  signature:[1],
+},{
+  texture: "sprite_wallbar",
+  signature:[1],
+}]
+
 function prepareBlockDefinition() {
   const blockDefinition = [{
     heightRatio: 1,
@@ -315,63 +341,28 @@ function prepareBlockDefinition() {
   };
 }
 
+function preparePlaceableDefinition() {
+  const placeableDefinition = [];
+  const correspondances = {};
+  for(let base of placeableCombinaison) {
+    const baseBlock = {
+      texture: base.texture,
+    }
+    placeableDefinition.push(baseBlock);
+    for(let signature of base.signature) {
+      correspondances[signature] = placeableDefinition.length-1;
+    }
+  }
 
-
-const colorDef = [{
-  // WHITE
-  tint: '#ffffff',
-}, {
-  // LGRAY
-  tint: '#cccccc',
-}, {
-  // DGRAY
-  tint: '#666666',
-}, {
-  // BROWN
-  tint: '#663300',
-}, {
-  // YELLOW
-  tint: '#ffff00',
-}, {
-  // RED
-  tint: '#ff0000',
-}, {
-  // LRED
-  tint: '#ff6600',
-}, {
-  // GREEN
-  tint: '#00ff00',
-}, {
-  // LGREEN
-  tint: '#66ff00',
-}, {
-  // CYAN
-  tint: '#00ffff',
-}, {
-  // LCYAN
-  tint: '#66ffff',
-}, {
-  // BLUE
-  tint: '#0000ff',
-}, {
-  // LBLUE
-  tint: '#0066ff',
-}, {
-  // MAGENTA
-  tint: '#ff00ff',
-}, {
-  // LMAGENTA
-  tint: '#ff66ff',
-}]
-
-
-
-// material variants
-//stone
-//wood
-//metal
-//soil
-//construction
+  for(let placeableDef of placeableDefinition) {
+    if(placeableDef && placeableDef.texture) {
+      placeableDef.texture = new Bitmap(`assets/${placeableDef.texture}.png`, 64, 64);
+    }
+  }
+  return {
+    placeableDefinition, correspondances
+  };
+}
 
 // color variants
 // WHITE

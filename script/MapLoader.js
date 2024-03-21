@@ -12,9 +12,9 @@ const DEFAULT_MAP = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0, 16, 0, 17,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -88,12 +88,40 @@ class DefaultMapLoader {
   async initMap() {
     
     this.blockProperties = prepareBlockDefinition();
-    console.log("blockProperties", this.blockProperties);
+    this.placeableProperties = preparePlaceableDefinition();
+    console.log("object Properties", this.blockProperties, this.placeableProperties);
     this.map = [];
     for(let z = 0; z < this.heigthModifier; z++) {
       this.map.push(...DEFAULT_MAP);
     }
     this.mapInfos.size = { x: 32, y: 32, z: 2*this.heigthModifier };
+    this.placeables = [{
+      x: 4,
+      y: 10,
+      z: 1,
+      type: 1
+    },{
+      x: 6,
+      y: 10,
+      z: 1,
+      type: 2
+    },{
+      x: 8,
+      y: 10,
+      z: 1,
+      type: 3
+    },{
+      x: 10,
+      y: 10,
+      z: 1,
+      type: 4
+    },{
+      x: 12,
+      y: 10,
+      z: 1,
+      type: 5
+    }];
+
     return {
       x: 16,
       y: 0,
@@ -109,7 +137,7 @@ class DefaultMapLoader {
 
 class DfMapLoader {
 
-  static CHUNK_SIZE = 2;
+  static CHUNK_SIZE = 0;
 
   static BLOCK_SIZE = 16;
   static BLOCK_SIZE_Z = 1;

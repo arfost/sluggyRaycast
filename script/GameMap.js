@@ -5,6 +5,8 @@ class GameMap {
     this.light = 3;
     this.skybox = new Bitmap('assets/skybox.jpg', 2000, 750);
 
+    this.placeables = mapLoader.placeables;
+
     const chunkCoord = this.playerCoordToMapCoord(startCoord);
     this.ready = this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);
 
@@ -24,6 +26,7 @@ class GameMap {
     console.log("chunks init", this.nextChunks);
 
     this.blockProperties = mapLoader.blockProperties.blockDefinition;
+    this.placeableProperties = mapLoader.placeableProperties.placeableDefinition;
   }
 
   get wallGrids(){
@@ -32,6 +35,10 @@ class GameMap {
 
   getBlockProperties(key) {
     return this.blockProperties[key] ? this.blockProperties[key] : this.blockProperties[0];
+  }
+
+  getPlaceableProperties(key) {
+    return this.placeableProperties[key] ? this.placeableProperties[key] : this.placeableProperties[0];
   }
 
   get(x, y, z) {

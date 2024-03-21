@@ -72,11 +72,11 @@ class Player {
     if (controls.right) this.strafe(3 * seconds, map);
 
     if (controls.look) {
-      this.rotateZ(controls.look * Math.PI * seconds * 0.005);
+      this.rotateZ(controls.look * Math.PI * seconds * 0.05);
       controls.look = 0;
     };
     if (controls.turn) {
-      this.rotate(controls.turn * Math.PI * seconds * 0.005);
+      this.rotate(controls.turn * Math.PI * seconds * 0.05);
       controls.turn = 0;
     };
 

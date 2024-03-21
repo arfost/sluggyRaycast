@@ -15,27 +15,27 @@ class Camera {
   }
 
   drawSky(direction, pitch, sky, ambient) {
-    this.ctx.fillStyle = '#000';
-    this.ctx.globalAlpha = 1;
-    this.ctx.fillRect(0, 0, this.width, this.height);
-
-    // this.ctx.fillStyle = '#fff';
-    // this.ctx.globalAlpha = ambient * 0.1;
+    // this.ctx.fillStyle = '#000';
+    // this.ctx.globalAlpha = 1;
     // this.ctx.fillRect(0, 0, this.width, this.height);
 
-    // var width = sky.width * (this.height / sky.height) * 2;
-    // var left = (direction / CIRCLE) * -width;
+    this.ctx.fillStyle = '#fff';
+    this.ctx.globalAlpha = ambient * 0.1;
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
-    // // Calculer le décalage vertical basé sur le pitch
-    // // La "sensibilité" détermine l'amplitude du mouvement de la skybox en fonction du pitch
-    // var top = (this.height / 2) * (1 + Math.sin(pitch)) - 0.5 * this.height;
+    var width = sky.width * (this.height / sky.height) * 2;
+    var left = (direction / CIRCLE) * -width;
 
-    // this.ctx.save();
-    // this.ctx.drawImage(sky.image, left, top, width, sky.height);
-    // if (left < width - this.width) {
-    //     this.ctx.drawImage(sky.image, left + width, top, width, sky.height);
-    // }
-    // this.ctx.restore();
+    // Calculer le décalage vertical basé sur le pitch
+    // La "sensibilité" détermine l'amplitude du mouvement de la skybox en fonction du pitch
+    var top = (this.height / 2) * (1 + Math.sin(pitch)) - 0.5 * this.height;
+
+    this.ctx.save();
+    this.ctx.drawImage(sky.image, left, top, width, sky.height);
+    if (left < width - this.width) {
+        this.ctx.drawImage(sky.image, left + width, top, width, sky.height);
+    }
+    this.ctx.restore();
   };
 
   drawWeapon(weapon, paces) {
@@ -84,7 +84,7 @@ class Camera {
       if (nwall.top + nwall.height > wall.top + wall.height) {
 
         this.ctx.globalAlpha = 1;
-        this.ctx.fillStyle = blockProps.tint;
+        this.ctx.fillStyle = blockProps.tint || "#fff";
         this.ctx.fillRect(left, nwall.top + nwall.height, width, (wall.top + wall.height) - (nwall.top + nwall.height));
         this.ctx.fillStyle = "#000";
         this.ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
@@ -93,7 +93,7 @@ class Camera {
       if (nwall.top < wall.top) {
 
         this.ctx.globalAlpha = 1;
-        this.ctx.fillStyle = blockProps.tint;
+        this.ctx.fillStyle = blockProps.tint || "#fff";
         this.ctx.fillRect(left, nwall.top, width, wall.top - nwall.top);
         this.ctx.fillStyle = "#000";
         this.ctx.globalAlpha = Math.max((step.distance) / this.lightRange - map.light, 0);
@@ -106,9 +106,9 @@ class Camera {
     if (s <= hit) {
       var textureX = Math.floor(blockProps.texture.width * step.offset);
       this.ctx.globalAlpha = 1;
-      this.ctx.drawImage(map.getBlockProperties(step.type).texture.image, textureX, 0, 1, map.getBlockProperties(step.type).texture.height, left, wall.top, width, wall.height);
+      this.ctx.drawImage(blockProps.texture.image, textureX, 0, 1, blockProps.texture.height, left, wall.top, width, wall.height);
       this.ctx.globalAlpha = 0.3;
-      this.ctx.fillStyle = map.getBlockProperties(step.type).tint;
+      this.ctx.fillStyle = blockProps.tint || "#fff";
       this.ctx.fillRect(left, wall.top, width, wall.height);
       this.ctx.fillStyle = "#000";
       this.ctx.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);

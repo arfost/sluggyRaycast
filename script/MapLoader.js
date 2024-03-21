@@ -149,7 +149,7 @@ class DfMapLoader {
     return {
       x: 48,
       y: 123,
-      z: 152
+      z: 1520
     }
   }
 
@@ -197,15 +197,11 @@ class DfMapLoader {
       return this.blockProperties.correspondances[key];
     }
   
-    console.log("no complet correspondance for", key);
-  
     key = `${shape},${material},-1`;
   
     if(this.blockProperties.correspondances[key] !== undefined) {
       return this.blockProperties.correspondances[key];
     }
-  
-    console.log("no partial correspondance for", key);
   
     key = `${shape},-1,-1`;
   
@@ -213,7 +209,7 @@ class DfMapLoader {
       return this.blockProperties.correspondances[key];
     }
   
-    console.log("no last correspondance for", key);
+    console.log("no last correspondance for", key, shape, material, special);
   
     return 1;
   }

@@ -1,4 +1,5 @@
-const propsCombinaison = [{
+const propsCombinaison = [
+  {
   // wall
   heightRatio: 1,
   stop: true,
@@ -37,10 +38,12 @@ const propsCombinaison = [{
   }, {
     texture: "wall_smooth_stone",
     signature: [
-      "4,2,3"
+      "4,2,3",
+      "4,5,3"
     ],
   }],
-}, {
+}, 
+{
   //slope
   heightRatio: 0.5,
   passable: true,
@@ -78,10 +81,10 @@ const propsCombinaison = [{
       "9,2,3"
     ],
   }],
-}, {
+}, 
+{
   //stairs
   heightRatio: 0.5,
-  stop: true,
   climbable: true,
   passable: true,
   texture: "stairs_stone_rough",
@@ -96,6 +99,13 @@ const propsCombinaison = [{
       "6,23,-1",
       "7,23,-1",
       "8,23,-1"
+    ],
+  },{
+    //grass
+    tint: "#00ff00",
+    signature: [
+      "8,8,-1",
+      "8,9,-1"
     ],
   }, {
     texture: "stairs_stone_rough",
@@ -141,7 +151,8 @@ const propsCombinaison = [{
       "8,5,3"
     ],
   }],
-}, {
+}, 
+{
   //fortification
   heightRatio: 1,
   walkable: true,
@@ -149,7 +160,8 @@ const propsCombinaison = [{
   signature: [
     "5,-1,-1"
   ]
-}, {
+}, 
+{
   //floor
   heightRatio: 0.1,
   passable: true,
@@ -173,6 +185,7 @@ const propsCombinaison = [{
     tint: '#A0A0A0',
     signature: [
       "1,2,-1",
+      "1,2,3",
       "2,2,-1",
       "3,2,-1",
       "10,2,-1",
@@ -283,7 +296,7 @@ function prepareBlockDefinition() {
         walkable: variant.walkable || base.walkable,
         alpha: variant.alpha || base.alpha,
         tint: variant.tint || base.tint,
-        texture: variant.texture || variant.texture,
+        texture: variant.texture || base.texture,
       }
       blockDefinition.push(variantBlock);
       for(let signature of variant.signature) {

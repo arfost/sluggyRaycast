@@ -3,6 +3,7 @@ class GameMap {
     this.mapLoader = mapLoader;
     this.size = mapLoader.mapInfos.size;
     this.light = 3;
+    this.skybox = new Bitmap('assets/skybox.jpg', 2000, 750);
 
     const chunkCoord = this.playerCoordToMapCoord(startCoord);
     this.ready = this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);

@@ -70,6 +70,15 @@ const DEFAULT_MAP = [
   ],
 ]
 
+DEFAULT_PLACEABLES = [
+  [{
+    x: 2.5,
+    y: 4.5,
+    z: 1,
+    type: 1
+  }],[]
+]
+
 const OFFSET_Z = 0;
 
 class DefaultMapLoader {
@@ -81,36 +90,24 @@ class DefaultMapLoader {
 
   constructor(heigthModifier = 1) {
     this.map = [],
-    this.mapInfos = {}
+      this.mapInfos = {}
     this.heigthModifier = heigthModifier;
   }
 
   async initMap() {
-    
+
     this.blockProperties = prepareBlockDefinition();
     this.placeableProperties = preparePlaceableDefinition();
     console.log("object Properties", this.blockProperties, this.placeableProperties);
     this.map = [];
-    for(let z = 0; z < this.heigthModifier; z++) {
+    for (let z = 0; z < this.heigthModifier; z++) {
       this.map.push(...DEFAULT_MAP);
     }
-    this.mapInfos.size = { x: 32, y: 32, z: 2*this.heigthModifier };
-    this.placeables = [{
-      x: 2.5,
-      y: 4.5,
-      z: 1,
-      type: 1
-    },{
-      x: 6.5,
-      y: 4.5,
-      z: 1,
-      type: 2
-    },{
-      x: 4.5,
-      y: 4.5,
-      z: 1,
-      type: 3
-    }];
+    this.mapInfos.size = { x: 32, y: 32, z: 2 * this.heigthModifier };
+    this.placeables = [];
+    for (let z = 0; z < this.heigthModifier; z++) {
+      this.placeables.push(...DEFAULT_PLACEABLES);
+    }
 
     return {
       x: 16,
@@ -127,7 +124,7 @@ class DefaultMapLoader {
 
 class DfMapLoader {
 
-  CHUNK_SIZE = 0;
+  CHUNK_SIZE = 2;
 
   BLOCK_SIZE = 16;
   BLOCK_SIZE_Z = 1;
@@ -145,6 +142,7 @@ class DfMapLoader {
   async initMap() {
 
     this.blockProperties = prepareBlockDefinition();
+    this.placeableProperties = preparePlaceableDefinition();
     console.log("blockProperties", this.blockProperties);
 
     await this.ready();
@@ -152,12 +150,13 @@ class DfMapLoader {
     const dfMapInfos = await this.client.GetMapInfo();
     console.log(dfMapInfos);
     this.mapInfos.size = {
-      x: dfMapInfos.blockSizeX * DfMapLoader.BLOCK_SIZE,
-      y: dfMapInfos.blockSizeY * DfMapLoader.BLOCK_SIZE,
-      z: dfMapInfos.blockSizeZ * DfMapLoader.BLOCK_SIZE_Z
+      x: dfMapInfos.blockSizeX * this.BLOCK_SIZE,
+      y: dfMapInfos.blockSizeY * this.BLOCK_SIZE,
+      z: dfMapInfos.blockSizeZ * this.BLOCK_SIZE_Z
     };
 
     this.map = new Array(this.mapInfos.size.z).fill(0).map(() => new Uint8Array(this.mapInfos.size.x * this.mapInfos.size.y));
+    this.placeables = new Array(this.mapInfos.size.z).fill(0).map(()=>[]);
 
     const tileTypeList = await this.client.GetTiletypeList();
 
@@ -201,34 +200,43 @@ class DfMapLoader {
           this.map[basePosition.z][((basePosition.y + y) * this.mapInfos.size.x) + basePosition.x + x] = this._mapDFInfosToBlock(tileType.shape, tileType.material, tileType.special, this.blockProperties.correspondances);
         }
       }
+      for (let building of block.buildings || []) {
+        if (building.buildingType && this.placeableProperties.correspondances[building.buildingType.buildingType]) {
+          this.placeables[building.posZMin].push({
+            x: building.posXMin + 0.5,
+            y: building.posYMin + 0.5,
+            type: this.placeableProperties.correspondances[building.buildingType.buildingType]
+          });
+        }
+      }
     }
     console.log("Block groub loaded", blocks);
   }
 
   _mapDFInfosToBlock(shape, material, special) {
-    if(shape == -1 || shape == 0) {
+    if (shape == -1 || shape == 0) {
       return 0;
     }
     let key = `${shape},${material},${special}`;
-    
-    if(this.blockProperties.correspondances[key] !== undefined) {
+
+    if (this.blockProperties.correspondances[key] !== undefined) {
       return this.blockProperties.correspondances[key];
     }
-  
+
     key = `${shape},${material},-1`;
-  
-    if(this.blockProperties.correspondances[key] !== undefined) {
+
+    if (this.blockProperties.correspondances[key] !== undefined) {
       return this.blockProperties.correspondances[key];
     }
-  
+
     key = `${shape},-1,-1`;
-  
-    if(this.blockProperties.correspondances[key] !== undefined) {
+
+    if (this.blockProperties.correspondances[key] !== undefined) {
       return this.blockProperties.correspondances[key];
     }
-  
+
     console.log("no last correspondance for", key, shape, material, special);
-  
+
     return 1;
   }
 }

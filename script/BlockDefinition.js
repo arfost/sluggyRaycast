@@ -268,26 +268,28 @@ const placeableCombinaison = [{
   texture: "sprite_bed",
   signature:[1],
 },{
-  texture: "sprite_altar",
-  signature:[1],
-},{
   texture: "sprite_chair",
-  signature:[1],
+  signature:[0],
 },{
   texture: "sprite_table",
-  signature:[1],
+  signature:[2],
 },{
   texture: "sprite_coffer",
-  signature:[1],
+  signature:[10],
 },{
   texture: "sprite_cabinet",
-  signature:[1],
+  heightRatio: 1,
+  signature:[14],
 },{
   texture: "sprite_statue",
-  signature:[1],
+  signature:[15],
 },{
   texture: "sprite_wallbar",
-  signature:[1],
+  signature:[39],
+},{
+  texture: "sprite_door",
+  heightRatio: 1,
+  signature:[8],
 }]
 
 function prepareBlockDefinition() {
@@ -342,7 +344,9 @@ function prepareBlockDefinition() {
 }
 
 function preparePlaceableDefinition() {
-  const placeableDefinition = [];
+  const placeableDefinition = [{
+    heightRatio: 1,
+  }];
   const correspondances = {};
   for(let base of placeableCombinaison) {
     const baseBlock = {
@@ -357,7 +361,7 @@ function preparePlaceableDefinition() {
 
   for(let placeableDef of placeableDefinition) {
     if(placeableDef && placeableDef.texture) {
-      placeableDef.texture = new Bitmap(`assets/${placeableDef.texture}.png`, 64, 64);
+      placeableDef.texture = new Bitmap(`assets/${placeableDef.texture}.png`, 64, 128*placeableDef.heightRatio);
     }
   }
   return {

@@ -15,7 +15,7 @@ class Gameloop {
   frame(time) {
     var seconds = (time - this.lastTime) / 1000;
     this.lastTime = time;
-    this.callback(seconds);
+    if (seconds<0.2) this.callback(seconds);
     this.ctx.fillStyle = '#fff';
     this.ctx.fillText(Math.round(1 / seconds) + ' fps', 10, 26);
     // this.ctx.fillStyle = '#fff';

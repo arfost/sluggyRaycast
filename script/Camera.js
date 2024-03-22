@@ -184,7 +184,7 @@ class Camera {
   project(heightRatio, angle, distance, layerOffset, resteOffset, pitch) {
     var z = (distance) * Math.cos(angle);
     var blockHeight = (this.height) * (1) / z;
-    var bottom = ((this.height) / 2 * (1 + 1 / z)) // + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
+    var bottom = (this.height / 2 * (1 + 1 / z)) // + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
 
     var verticalAdjustment = this.height * Math.tan(pitch);
     bottom += verticalAdjustment + ((blockHeight * -layerOffset) + (blockHeight / 10 * resteOffset));
@@ -196,13 +196,15 @@ class Camera {
   };
 
   drawSprites(player, map) {
-    const sprites = map.placeables;
+    const sprites = map.placeables[player.zLevel];
     // Calculate distance from the player to each sprite
     sprites.forEach(sprite => {
       const dx = sprite.x - player.x;
       const dy = sprite.y - player.y;
       sprite.distance = Math.sqrt(dx * dx + dy * dy);
       sprite.angle = Math.atan2(dy, dx) - player.direction;
+      while (sprite.angle < -Math.PI) sprite.angle += 2 * Math.PI;
+      while (sprite.angle > Math.PI) sprite.angle -= 2 * Math.PI;
     });
 
     // Sort sprites by distance in descending order
@@ -211,6 +213,10 @@ class Camera {
     // Draw each sprite
     sprites.forEach(sprite => {
       if(sprite.distance>this.range) return;
+      if (sprite.angle < -this.focalLength || sprite.angle > this.focalLength) {
+        // Le sprite est hors du champ de vision, ne pas le dessiner
+        return;
+      }
       this.drawSprite(player, sprite, map);
     });
   }
@@ -229,19 +235,19 @@ class Camera {
     const spriteInfos = map.getPlaceableProperties(sprite.type);
 
     const spriteDistance = sprite.distance;
-    const spriteSize = (this.height*spriteInfos.heightRatio) / spriteDistance; // Adjust size based on distance
-    const spriteX = Math.tan(spriteAngle) * this.width;
-    
+    const spriteSize = (this.height*spriteInfos.heightRatio) * 1/spriteDistance; // Adjust size based on distance
+    const spriteX = Math.tan(spriteAngle) * (this.width-spriteSize);
+
     const verticalAdjustment = this.height * Math.tan(player.upDirection);
-    const spriteTop = (this.height / 2) * (1 + 1 / spriteDistance) + verticalAdjustment - (spriteSize * sprite.z);
+    const spriteTop = ((this.height-spriteSize)/2 ) * (1 + 0.5 / (spriteDistance)) + verticalAdjustment;
 
     const columnCount = spriteSize / columnWidth;
-
     for(let i = 0; i < columnCount; i++){
       const adjustedX = this.width/2 + spriteX - spriteSize/2 + i * columnWidth;
       const spriteScreenColumn = Math.floor( adjustedX / this.spacing);
       var left = spriteScreenColumn * this.spacing;
       if(this.zBuffer[spriteScreenColumn] < spriteDistance) continue;
+      
       const textureX = spriteInfos.texture.width * i / columnCount;
       this.ctx.drawImage(spriteInfos.texture.image, textureX, 0, columnWidth+1, spriteInfos.texture.height, left, spriteTop, columnWidth, spriteSize);
     } 

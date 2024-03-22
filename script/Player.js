@@ -90,7 +90,6 @@ class Player {
     if (controls.forward) { this.walk(3 * seconds, map) } 
     if (controls.backward) { 
       this.walk(-3 * seconds, map);
-      console.log("position : ", this.x, this.y, this.z, "zLevel : ", this.zLevel, "zRest : ", this.zRest);
     }
     //this.physique(seconds, map);
   };

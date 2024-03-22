@@ -347,6 +347,7 @@ function preparePlaceableDefinition() {
   for(let base of placeableCombinaison) {
     const baseBlock = {
       texture: base.texture,
+      heightRatio: base.heightRatio || 0.5,
     }
     placeableDefinition.push(baseBlock);
     for(let signature of base.signature) {

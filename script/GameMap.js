@@ -8,10 +8,10 @@ class GameMap {
     this.placeables = mapLoader.placeables;
 
     const chunkCoord = this.playerCoordToMapCoord(startCoord);
-    this.ready = this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);
+    this.ready = this.mapLoader.loadChunk(chunkCoord.x-mapLoader.CHUNK_SIZE, chunkCoord.y-mapLoader.CHUNK_SIZE, chunkCoord.z-mapLoader.CHUNK_SIZE, mapLoader.CHUNK_SIZE*2+1);
 
-    const chunkLength = DfMapLoader.BLOCK_SIZE * (DfMapLoader.CHUNK_SIZE);
-    const chunkLengthZ = 10*DfMapLoader.BLOCK_SIZE_Z * (DfMapLoader.CHUNK_SIZE);
+    const chunkLength = mapLoader.BLOCK_SIZE * (mapLoader.CHUNK_SIZE);
+    const chunkLengthZ = 10*mapLoader.BLOCK_SIZE_Z * (mapLoader.CHUNK_SIZE);
 
     this.nextChunks = {
       xMin: startCoord.x - chunkLength/2,
@@ -93,9 +93,9 @@ class GameMap {
 
   playerCoordToMapCoord(player) {
     return {
-      x: Math.floor(player.x / DfMapLoader.BLOCK_SIZE),
-      y: Math.floor(player.y / DfMapLoader.BLOCK_SIZE),
-      z: Math.floor(player.z / 10 / DfMapLoader.BLOCK_SIZE_Z)
+      x: Math.floor(player.x / this.mapLoader.BLOCK_SIZE),
+      y: Math.floor(player.y / this.mapLoader.BLOCK_SIZE),
+      z: Math.floor(player.z / 10 / this.mapLoader.BLOCK_SIZE_Z)
     }
   }
 
@@ -104,33 +104,33 @@ class GameMap {
     console.log("getNextChunks", direction, JSON.stringify(this.nextChunks, null, 4), {x: player.x, y: player.y, z: player.z}, JSON.stringify(chunkCoord, null, 4));
     switch (direction) {
       case "up":
-        chunkCoord.z += DfMapLoader.CHUNK_SIZE*2;
+        chunkCoord.z += this.mapLoader.CHUNK_SIZE*2;
         this.nextChunks.zMax += this.nextChunks.chunkLengthZ;
         break;
       case "down":
-        chunkCoord.z -= DfMapLoader.CHUNK_SIZE*2;
+        chunkCoord.z -= this.mapLoader.CHUNK_SIZE*2;
         this.nextChunks.zMin -= this.nextChunks.chunkLengthZ;
         break;
       case "forward":
-        chunkCoord.x += DfMapLoader.CHUNK_SIZE*2;
+        chunkCoord.x += this.mapLoader.CHUNK_SIZE*2;
         this.nextChunks.xMax += this.nextChunks.chunkLength;
         break;
       case "backward":
-        chunkCoord.x -= DfMapLoader.CHUNK_SIZE*2;
+        chunkCoord.x -= this.mapLoader.CHUNK_SIZE*2;
         this.nextChunks.xMin -= this.nextChunks.chunkLength;
         break;
       case "left":
-        chunkCoord.y += DfMapLoader.CHUNK_SIZE*2;
+        chunkCoord.y += this.mapLoader.CHUNK_SIZE*2;
         this.nextChunks.yMax += this.nextChunks.chunkLength;
         break;
       case "right":
-        chunkCoord.y -= DfMapLoader.CHUNK_SIZE*2;
+        chunkCoord.y -= this.mapLoader.CHUNK_SIZE*2;
         this.nextChunks.yMin -= this.nextChunks.chunkLength;
         break;
     }
     console.log("getNextChunks after", direction, JSON.stringify(this.nextChunks, null, 4), JSON.stringify(chunkCoord, null, 4));
     
-    this.mapLoader.loadChunk(chunkCoord.x-DfMapLoader.CHUNK_SIZE, chunkCoord.y-DfMapLoader.CHUNK_SIZE, chunkCoord.z-DfMapLoader.CHUNK_SIZE, DfMapLoader.CHUNK_SIZE*2+1);
+    this.mapLoader.loadChunk(chunkCoord.x-this.mapLoader.CHUNK_SIZE, chunkCoord.y-this.mapLoader.CHUNK_SIZE, chunkCoord.z-this.mapLoader.CHUNK_SIZE, this.mapLoader.CHUNK_SIZE*2+1);
     
   }
 

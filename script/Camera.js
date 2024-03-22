@@ -163,19 +163,13 @@ class Camera {
       return (map.getBlockProperties(step.type) || {}).stop;
     }
 
-    while (++hit < ray.length && !isStop(ray[hit]));
+    while (++hit < ray.length-1 && !isStop(ray[hit]));
+
+    this.zBuffer[column] = ray[hit].distance;
 
     // for (var s = ray.length - 1; s >= 0; s--) {
     for (var s = ray.length - 1; s >= 0; s--) {
       var step = ray[s];
-      let sprite = map.placeables.find(sprite => sprite.x === step.x && sprite.y === Math.floor(step.y));
-      if(sprite && step.layer === sprite.z){
-        // const spriteProj = this.project(1, angle, step.distance, layerOffset, player.zRest, player.upDirection);
-        // const spriteProps = map.getPlaceableProperties(sprite.type);
-        // var textureX = Math.floor(spriteProps.texture.width * step.offset);
-        // this.ctx.globalAlpha = 1;
-        // this.ctx.drawImage(spriteProps.texture.image, textureX, 0, 1, spriteProps.texture.height, left, spriteProj.top, width, spriteProj.height);
-      }
       if (step.type > 0) {
         if (map.getBlockProperties(step.type).texture && !FORCE_WIREFRAME) {
           this.drawTexturedColumn(s, step, ray, hit, angle, map, layerOffset, player.zRest, player.upDirection, left, width);
@@ -185,136 +179,7 @@ class Camera {
         }
       }
     }
-
-      // map.placeables.forEach(sprite => {
-      // const spriteDistance = this.getSpriteDistance(sprite, player);
-      // const spriteAngle = Math.atan2(sprite.y - player.y, sprite.x - player.x) - player.direction;
-
-      // // Assurez-vous que le sprite est devant le joueur et à une distance raisonnable
-      // if (spriteDistance < ray[ray.length - 1].distance && spriteAngle > -Math.PI / 4 && spriteAngle < Math.PI / 4) {
-      //     this.drawSpriteColumn(map.getPlaceableProperties(sprite.type), player, spriteAngle, spriteDistance, column);
-      // }
-      // });
   };
-
-  drawSpriteColumn(sprite, player, spriteAngle, spriteDistance, column) {
-    // Largeur d'une slice du sprite (peut varier selon votre design)
-    const spriteWidth = sprite.texture.width; // Largeur totale du sprite
-    const spriteHeight = sprite.texture.height; // Hauteur totale du sprite
-
-    // Taille du sprite sur l'écran en fonction de la distance
-    const spriteScreenHeight = this.height / spriteDistance;
-    const spriteScreenWidth = (this.width / spriteDistance) * (spriteWidth / spriteHeight);
-
-    // Calculer la position X du sprite sur l'écran
-    const spriteScreenX = Math.tan(spriteAngle) * this.width;
-
-    // Calcul de la colonne du sprite à dessiner
-    const spriteColumn = Math.floor((spriteScreenX + spriteScreenWidth / 2) - (column * this.spacing));
-
-    // Vérification pour ne dessiner que si la slice est à l'intérieur de l'image du sprite
-    if (spriteColumn < 0 || spriteColumn >= spriteWidth) return;
-
-    // Calculer la position Y du sprite sur l'écran (centré verticalement)
-    const spriteScreenY = (this.height - spriteScreenHeight) / 2;
-
-    // Dessiner la slice de sprite
-    this.ctx.drawImage(sprite.texture.image,
-      spriteColumn, 0, 1, spriteHeight,
-      column * this.spacing, spriteScreenY,
-      this.spacing, spriteScreenHeight);
-  }
-
-  drawSpritesAgainTest(player, sprites) {
-    //SPRITE CASTING
-    // if (frameCount == 1 || frameCount % 4 == 0) {
-    //   for (var i=0; i<whichSprites.length; i++) { //Calculate sprite distances and reset order
-    //     whatOrder[i] = i;
-    //     spriteDistance[i] = ((whichCamera.posX - whichSprites[i].x) * (whichCamera.posX - whichSprites[i].x)) + ((whichCamera.posY - whichSprites[i].y) * (whichCamera.posY - whichSprites[i].y));
-    //   }
-    //   combSort(whatOrder, spriteDistance, whichSprites.length); //Sort sprites by distance from the camera
-    // }
-    
-    var tp = -1;
-    if (tpWalls.length > 0) {
-      tp = tpWalls.length - 1;
-    }
-    for (var i=0; i<sprites.length; i++) {
-      var spriteX = sprites[i].x - player.x;
-      var spriteY = sprites[i].y - player.z;
-      
-      var invDet = 1.0 / (whichCamera.planeX * whichCamera.dirY - whichCamera.dirX * whichCamera.planeY);
-      var transformX = invDet * (whichCamera.dirY * spriteX - whichCamera.dirX * spriteY);
-      var transformY = invDet * (-whichCamera.planeY * spriteX + whichCamera.planeX * spriteY);
-  
-      if (transformY > 0) { //No need for the rest if the sprite is behind the player
-        for (tp; tp>=0; tp--) {
-          var tpDist = ((whichCamera.posX - tpWalls[tp].mapX)*(whichCamera.posX - tpWalls[tp].mapX)) + ((whichCamera.posY - tpWalls[tp].mapY) * (whichCamera.posY - tpWalls[tp].mapY));
-          if (spriteDistance[i] < tpDist) {
-            tpWalls[tp].draw();
-          } else {
-            break;
-          }
-        }
-  
-        var spriteHeight = Math.abs(Math.floor(h/transformY));
-        var drawStartY = -spriteHeight / 2 + hHalf;
-  
-        var spriteScreenX = Math.floor(w/2) * (1 + transformX / transformY);
-        var spriteWidth = Math.abs(Math.floor(h / transformY));
-        var drawStartX = Math.floor(-spriteWidth / 2 + spriteScreenX);
-        var drawEndX = drawStartX + spriteWidth;
-        
-        var clipStartX = drawStartX;
-        var clipEndX = drawEndX;
-  
-        if (drawStartX < -spriteWidth) {
-          drawStartX = -spriteWidth;
-        }
-        if (drawEndX > w + spriteWidth) {
-          drawEndX = w + spriteWidth;
-        }
-  
-        for (var stripe=drawStartX; stripe<=drawEndX; stripe++) {
-          if (transformY > whichZBuffer[stripe]) {
-            if (stripe - clipStartX <= 1) { //Detect leftmost obstruction
-              clipStartX = stripe;
-            } else {
-              clipEndX = stripe; //Detect rightmost obstruction
-              break;
-            }
-          }	
-        }
-        
-        if (clipStartX != clipEndX && clipStartX < w && clipEndX > 0) { //Make sure the sprite is not fully obstructed or off screen
-          var scaleDelta = whichSprites[whatOrder[i]].width / spriteWidth;
-          var drawXStart = Math.floor((clipStartX - drawStartX) * scaleDelta);
-          if (drawXStart < 0) {
-            drawXStart = 0;
-          }
-          var drawXEnd = Math.floor((clipEndX - clipStartX) * scaleDelta) + 1;
-          if (drawXEnd > whichSprites[whatOrder[i]].width) {
-            drawEndX = whichSprites[whatOrder[i]].width;
-          }
-          var drawWidth = clipEndX - clipStartX;
-          if (drawWidth < 0) {
-            drawWidth = 0;
-          }
-          var drawAng = Math.atan2(spriteY, spriteX);
-          whichSprites[whatOrder[i]].updateSpriteRotation(drawAng);
-          ctx.save();
-          ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(whichSprites[whatOrder[i]].pic, drawXStart, 0, drawXEnd, whichSprites[whatOrder[i]].height, clipStartX, drawStartY, drawWidth, spriteHeight);
-          ctx.restore();
-        }
-      }
-    }//End of spriteList for loop
-  
-    for (tp; tp >= 0; tp--) {//Draw the remaining transparent walls
-      tpWalls[tp].draw();
-    }
-    tpWalls.length = 0;
-  }//End of drawSprites
 
   project(heightRatio, angle, distance, layerOffset, resteOffset, pitch) {
     var z = (distance) * Math.cos(angle);
@@ -345,10 +210,7 @@ class Camera {
 
     // Draw each sprite
     sprites.forEach(sprite => {
-      // for(let i = 0; i < this.resolution; i++){
-      //   // Only draw sprites that are within the player's field of view
-      //   this.drawSpriteColumn(map.getPlaceableProperties(sprite.type), player, sprite.angle, sprite.distance, i);
-      // }
+      if(sprite.distance>this.range) return;
       this.drawSprite(player, sprite, map);
     });
   }
@@ -360,31 +222,28 @@ class Camera {
   }
 
   drawSprite(player, sprite, map) {
-    // Adjust sprite angle within the range of -PI to PI
-    let spriteAngle = sprite.angle;
-    while (spriteAngle < -Math.PI) spriteAngle += 2 * Math.PI;
-    while (spriteAngle > Math.PI) spriteAngle -= 2 * Math.PI;
-
     
-    if (sprite.angle > this.focalLength || sprite.angle < -this.focalLength) return;
+    var columnWidth = this.spacing;
+    let spriteAngle = sprite.angle;
 
     const spriteInfos = map.getPlaceableProperties(sprite.type);
 
     const spriteDistance = sprite.distance;
-    const spriteSize = this.height / spriteDistance; // Adjust size based on distance
+    const spriteSize = (this.height*spriteInfos.heightRatio) / spriteDistance; // Adjust size based on distance
     const spriteX = Math.tan(spriteAngle) * this.width;
-
-    const spriteScreenColumn = Math.floor(spriteX / this.spacing);
-
-    if(this.zBuffer[spriteScreenColumn] < spriteDistance) return;
-
-    // Calculate the top position based on sprite's z position (height)
-    // Adjust sprite drawing based on its z value and player's pitch
+    
     const verticalAdjustment = this.height * Math.tan(player.upDirection);
     const spriteTop = (this.height / 2) * (1 + 1 / spriteDistance) + verticalAdjustment - (spriteSize * sprite.z);
 
-    // Assuming sprite.texture is an Image object
-    this.ctx.drawImage(spriteInfos.texture.image, this.width / 2 + spriteX - spriteSize / 2, spriteTop, spriteSize, spriteSize);
-  }
+    const columnCount = spriteSize / columnWidth;
 
+    for(let i = 0; i < columnCount; i++){
+      const adjustedX = this.width/2 + spriteX - spriteSize/2 + i * columnWidth;
+      const spriteScreenColumn = Math.floor( adjustedX / this.spacing);
+      var left = spriteScreenColumn * this.spacing;
+      if(this.zBuffer[spriteScreenColumn] < spriteDistance) continue;
+      const textureX = spriteInfos.texture.width * i / columnCount;
+      this.ctx.drawImage(spriteInfos.texture.image, textureX, 0, columnWidth+1, spriteInfos.texture.height, left, spriteTop, columnWidth, spriteSize);
+    } 
+  }
 }
